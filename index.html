@@ -11,9 +11,11 @@
       img[alt='petrinet of cellphone repair process'] { width: 1100px; }
 
       body { font-family: 'Droid Serif'; }
+      html * { font-size: 24px; }
       h1, h2, h3 {
         font-family: 'Yanone Kaffeesatz';
         font-weight: normal;
+        margin-top: 0px;
       }
       .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
       .img-intro {
@@ -21,19 +23,23 @@
         height: auto;
       }
       .my-list > li {
-        font-size: 24px;
         line-height: 200%;
       }
-      .logo{
-        background-image: url('https://upload.wikimedia.org/wikipedia/commons/0/0a/Hawhamburg-logo.svg');
-        background-size: 100% 100%;
-        height: 75px;
-        width: 225px;
+      .logo {
         position: fixed;
-        top: 3px;
+        width: 225px;
+        top: 20px;
         right: 20px;
-
       }
+      .banner {
+        position: fixed;
+        width: 89%;
+        height: 5px;
+        left: auto;
+        right: auto;
+        top: 97px;
+      }
+
     </style>
   </head>
   <body>
@@ -42,25 +48,30 @@
 
 
 layout: true
+name: header_and_banner
 
-<div class='logo'></div>
+<img src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Hawhamburg-logo.svg" class="logo">
+<img src="assets/haw_banner.png" class="banner">
+
 
 ---
-class: center, middle
-
-# Mining an cellphone repair process using ProM 6.7
-
-**
+class: middle
 
 
-
-*
-Presentation from Benedict Heidmeyer, Niclas Jensen and Fabian Schimke
-*
+<h1 align="center">
+  Mining an cellphone repair process using ProM 6.7
+</h1>
+<p align="center">
+  <div align="center" style="line-height: 35px; margin-top: 100px;">
+  Benedict Heidmeyer<br>
+  Niclas Jensen<br>
+  Fabian Schimke<br>
+  </div>
+</p>
 
 ---
 
-# Agenda
+## Agenda
 
 <div style="line-height: 200%; font-size: 1.5em;">
 1. Introduction <br>
@@ -73,65 +84,85 @@ Presentation from Benedict Heidmeyer, Niclas Jensen and Fabian Schimke
 
 ---
 
-# 1. Introduction
+## 1. Introduction
 
 <img src="assets/img1intro.png" class="img-intro" />
 ---
+template: header_and_banner
+layout: true
 
-# 2. Inspecting Event Log
+## 2. Inspecting Event Log
+---
 
-<ul class="my-list">
+<ul class="my-list" style="padding-top: 20px">
   <li>How many cases (or process instances) are in the log? </li>
   <li>How many tasks (or audit trail entries) are in the log? </li>
   <li>How many resources are in the log?</li>
   <li>Are there running cases in the log?</li>
   <li>Which resources work on which tasks?</li>
 </ul>
+---
 
----
-  ### How many cases (or process instances) are in the log?
+  How many cases (or process instances) are in the log?
 
   <img src="assets/questions.png" style="width: 100%"/>
 ---
-  <h3>How many tasks (or audit trail entries) are in the log?</h3>
+
+  How many tasks (or audit trail entries) are in the log?
+
   <img src="assets/questions.png" style="width: 100%"/>
 ---
-  <h3>How many resources are in the log?</h3>
+
+  How many resources are in the log?
+
   <img src="assets/questions.png" style="width: 100%"/>
 ---
-  <h3>Are there running cases in the log?</h3>
+
+  Are there running cases in the log?
+
   <img src="assets/startendevents.png" style="width: 100%"/>
 ---
-  <h3>Which resources work on which tasks?</h3>
+
+  Which resources work on which tasks?
+
   <img src="assets/resources.png" style="width: 100%"/>
 ---
-  # 3. Cleaning Event Log
-  <img src="assets/cleaning1.png" style="width: 100%" />
+layout: false
+template: header_and_banner
 
+  ## 3. Cleaning Event Log
+
+  Before (without filter)
+  <img src="assets/startendevents.png" style="width: 100%; margin-top: 10px" />
+
+  After (with filter)
+  <img src="assets/startendeventsfilter.png" style="width: 100%; margin-top: 10px;" />
 ---
-  <h3>Before</h3>
-  <img src="assets/startendevents.png" style="width: 100%" />
-  <h3>After (with filter)<h3/>
-  <img src="assets/startendeventsfilter.png" style="width: 100%; margin-top: 20px" />
----
+layout: false
+template: header_and_banner
 
-# 4. Mining the Control-Flow Perspective
+## 4. Mining the Control-Flow Perspective
 
-### How are the cases actually being related?
+How are the cases actually being related?
 
 ![petrinet of cellphone repair process](assets/petrinet.svg)
 
 ---
+layout: false
+template: header_and_banner
 
-# 5. Mining Case-Related Information
-<ul class="my-list">
-  <li>What are the most frequent paths in the process?</li>
-  <li>What is the distribution of all cases over the different paths through the process?</li>
-</ul>
-<img src="assets/inductive_visual_miner.png" style="width: 100%" />
+## 5. Mining Case-Related Information
+What are the most frequent paths in the process?
+
+What is the distribution of all cases over the different paths through the process?
+<img src="assets/inductive_visual_miner.png" style="position: absolute; left: 0px; width: 100%; margin-top: 40px;">
 ---
 
-# 6. Mining Organizational-Related Information
+template: header_and_banner
+layout: true
+
+## 6. Mining Organizational-Rel. Information
+---
 
 <ul class="my-list">
   <li>How many people are involved in a case?</li>
@@ -140,22 +171,36 @@ Presentation from Benedict Heidmeyer, Niclas Jensen and Fabian Schimke
   <li>Who are the important people in the communication flow?</li>
   <li>Who subcontract work to whom?</li>
 </ul>
+---
 
+<div style="display: block; margin-left: auto; margin-right: auto; width: 90%;">
+  How many people are involved in the case Repair?
+  <img src="assets/social_mining.png" style="display: block; margin-left: auto; margin-right: auto; margin-top: 10px; width: 100%;">
+</div>
 ---
-### How many people are involved in case Repair?
-<img src="assets/social_mining.png" style="width: 100%"/>
+
+<div style="display: block; margin-left: auto; margin-right: auto; width: 90%;">
+  What are the dependencies among the solvers?
+  <img src="assets/social_mining.png" style="display: block; margin-left: auto; margin-right: auto; margin-top: 10px; width: 100%;">
+</div>
 ---
-### What are the dependencies among the solvers?
-<img src="assets/social_mining.png" style="width: 100%"/>
+
+<div style="display: block; margin-left: auto; margin-right: auto; width: 90%;">
+  How many transfers happen from one role to another?
+  <img src="assets/social_mining.png" style="display: block; margin-left: auto; margin-right: auto; margin-top: 10px; width: 100%;">
+</div>
 ---
-### How many transfers happen from one role to another role?
-<img src="assets/social_mining.png" style="width: 100%"/>
+
+<div style="display: block; margin-left: auto; margin-right: auto; width: 90%;">
+  Who are important people in the communication flow?
+  <img src="assets/social_mining.png" style="display: block; margin-left: auto; margin-right: auto; margin-top: 10px; width: 100%;">
+</div>
 ---
-### Who are the important people in the communication flow?
-<img src="assets/social_mining.png" style="width: 100%"/>
----
-### Who subcontract work to whom?
-<img src="assets/social_mining.png" style="width: 100%"/>
+
+<div style="display: block; margin-left: auto; margin-right: auto; width: 90%;">
+  Who subcontract work to whom?
+  <img src="assets/social_mining.png" style="display: block; margin-left: auto; margin-right: auto; margin-top: 10px; width: 100%;">
+</div>
 
 
 
