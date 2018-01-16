@@ -21,6 +21,15 @@
         font-weight: normal;
       }
       .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .img-intro {
+        width: 100%;
+        max-height: 200px;
+        height: auto;
+      }
+      .my-list > li {
+        padding-top: 5px;
+        padding-bottom: 5px;
+      }
     </style>
   </head>
   <body>
@@ -54,10 +63,35 @@ class: agenda
 
 # Introduction
 
+<img src="img1intro.png" class="img-intro" />
 ---
 
 # Inspecting Event Log
 
+<ul class="my-list">
+  <li>How many cases (or process instances) are in the log? </li>
+  <li>How many tasks (or audit trail entries) are in the log? </li>
+  <li>How many resources are in the log?</li>
+  <li>Are there running cases in the log?</li>
+  <li>Which resources work on which tasks?</li>
+</ul>
+
+---
+  #How many cases (or process instances) are in the log?
+
+  <img src="questions.png" style="width: 100%"/>
+---
+  #How many tasks (or audit trail entries) are in the log?
+  <img src="questions.png" style="width: 100%"/>
+---
+  #How many resources are in the log?
+  <img src="questions.png" style="width: 100%"/>
+---
+  #Are there running cases in the log?
+  <img src="questions.png" style="width: 100%"/>
+---
+  #Which resources work on which tasks?
+  <img src="resources.png" style="width: 100%"/>
 ---
 
 # Cleaning Event Log
