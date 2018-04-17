@@ -12,11 +12,14 @@
 
       body { font-family: 'Droid Serif'; }
       html * { font-size: 24px; }
-      ol { line-height: 200%; }
+      ol, ul { line-height: 200%; }
       h1, h2, h3 {
         font-family: 'Yanone Kaffeesatz';
         font-weight: normal;
         margin-top: 0px;
+      }
+      a {
+        font-size: inherit;
       }
       .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
       .img-intro {
@@ -25,6 +28,17 @@
       }
       .my-list > li {
         line-height: 200%;
+      }
+      .extend_horizontal_10 {
+        margin-left:  -10px;
+        margin-right: -10px;
+      }
+      .extend_horizontal_30 {
+        margin-left:  -30px;
+        margin-right: -30px;
+      }
+      .small_font_size * {
+        font-size: 17px;
       }
       .logo {
         position: fixed;
@@ -72,14 +86,12 @@ class: middle
 
 ## Agenda
 
-<div style="line-height: 200%; font-size: 1.5em;">
-1. Introduction <br>
-2. Model Specs <br>
-3. Generating test data with factories <br>
-4. Controller Specs <br>
-5. Feature Specs <br>
-6. Test Driven Development <br>
-</font>
+1. Introduction
+1. Model Specs
+1. Generating test data with factories
+1. Controller Specs
+1. Feature Specs
+1. Test Driven Development
 
 ---
 template: header_and_banner
@@ -168,7 +180,7 @@ describe Contact do
   it "is invalid without a lastname"
   it "is invalid without an email address"
   it "is invalid with a duplicate email address"
-* it "filter last name by letter"\
+* it "filter last name by letter" \
 *    " returns a sorted array of results that match"
 end
 ```
@@ -179,7 +191,7 @@ end
 describe Contact do
   it "is valid with a firstname, lastname and email"
   it "is invalid without a firstname"
-  # ..other invalid test left out
+  # other invalid tests ...
   describe "filter last name by letter" do
     context "with matching letters" do
       it "returns a sorted array of results that match"
@@ -260,8 +272,203 @@ describe "filter last name by letter" do
     end
   end
 end
+```
+
+---
+
+layout: false
+template: header_and_banner
+
+## 2. Model Specs - Summery
+
+- [rspec matchers](https://github.com/rspec/rspec-expectations#built-in-matchers): `be_valid`, `eq`, `include`
+- Use active, explicit expectations
+- Test for what you expect to happen, <br>
+  and for what you expect **not** to happen
+- Test for edge cases
+- Organize your specs with `describe` and `context`
+
+
+---
+
+template: header_and_banner
+
+## 3. Generating test data
+
+### [Factory Bot](https://github.com/thoughtbot/factory_bot) and [Faker](https://github.com/stympy/faker) helps us to:
+- get rid of syntax that clutters up the code
+- flexible create specific types of data
+- get more realistic fake data
+- easily build more complex associations
+
+---
+
+template: header_and_banner
+
+## 3. Generating test data - Define 1/3
 
 ```
+FactoryBot.define do
+  factory :contact do
+    firstname { Faker::Name.first_name }
+    lastname  { Faker::Name.last_name }
+    email     { Faker::Internet.email }
+  end
+end
+```
+
+---
+
+template: header_and_banner
+
+## 3. Generating test data - Define 2/3
+
+```
+FactoryBot.define do
+  factory :phone do
+    association :contact
+    phone { Faker::PhoneNumber.phone_number }
+
+    factory :home_phone do
+      phone_type 'home'
+    end
+
+    factory :work_phone do
+      phone_type 'work'
+    end
+
+    factory :mobile_phone do
+      phone_type 'mobile'
+    end
+  end
+end
+```
+
+---
+
+template: header_and_banner
+
+## 3. Generating test data - Define 3/3
+
+.extend_horizontal_10[
+```
+FactoryBot.define do
+  factory :contact do
+    firstname { Faker::Name.first_name }
+    lastname  { Faker::Name.last_name }
+    email     { Faker::Internet.email }
+
+    after(:build) do |contact|
+      [:home_phone, :work_phone, :mobile_phone].each do |phone|
+        contact.phones << FactoryBot.build(:phone,
+                                            phone_type: phone,
+                                            contact: contact)
+      end
+    end
+
+    factory :invalid_contact do
+      firstname nil
+    end
+  end
+end
+```
+]
+
+---
+
+template: header_and_banner
+
+## 3. Generating test data with factories
+
+.extend_horizontal_10[
+```
+FactoryBot.define do
+  factory :contact do
+    firstname { Faker::Name.first_name }
+    lastname  { Faker::Name.last_name }
+    email     { Faker::Internet.email }
+
+    after(:build) do |contact|
+      [:home_phone, :work_phone, :mobile_phone].each do |phone|
+        contact.phones << FactoryBot.build(:phone,
+                                            phone_type: phone,
+                                            contact: contact)
+      end
+    end
+
+    factory :invalid_contact do
+      firstname nil
+    end
+  end
+end
+```
+]
+
+---
+
+template: header_and_banner
+
+## 4. Controller Specs - Example GET 1/2
+
+.extend_horizontal_30[
+```
+describe ContactsController do
+  describe 'GET #index' do
+
+    context 'with params[:letter]' do
+      it "populates an array of contacts starting with the letter"
+      it "renders the :index template"
+    end
+
+    context 'without params[:letter]' do
+      it "populates an array of all contacts"
+      it "renders the :index template"
+    end
+
+  end
+end
+```
+]
+
+---
+
+template: header_and_banner
+
+## 4. Controller Specs - Example GET 2/2
+
+.small_font_size[
+```
+describe ContactsController do
+  describe 'GET#index' do
+    context 'with params[:letter]' do
+      it "populates an array of contacts starting with the letter" do
+        smith = create(:contact, lastname: 'Smith')
+        jones = create(:contact, lastname: 'Jones')
+        get :index, letter: 'S'
+        expect(assigns(:contacts)).to match_array([smith])
+      end
+      it "renders the :index template" do
+        get :index, letter: 'S'
+        expect(response).to render_template :index
+      end
+    end
+    context 'without params[:letter]' do
+      it "populates an array of all contacts" do
+        smith = create(:contact, lastname: 'Smith')
+        jones = create(:contact, lastname: 'Jones')
+        get :index
+        expect(assigns(:contacts)).to match_array([smith, jones])
+      end
+      it "renders the :index template" do
+        get :index
+        expect(response).to render_template :index
+      end
+    end
+  end
+end
+```
+]
+
 
     </textarea>
     <script src="https://remarkjs.com/downloads/remark-latest.min.js">
