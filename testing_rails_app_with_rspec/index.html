@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test a Rails 4 application using RSpec 3</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      img[alt='petrinet of cellphone repair process'] { width: 1100px; }
+
+      body { font-family: 'Droid Serif'; }
+      html * { font-size: 24px; }
+      ol { line-height: 200%; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+        margin-top: 0px;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .img-intro {
+        width: 100%;
+        height: auto;
+      }
+      .my-list > li {
+        line-height: 200%;
+      }
+      .logo {
+        position: fixed;
+        width: 225px;
+        top: 20px;
+        right: 20px;
+      }
+      .banner {
+        position: fixed;
+        width: 89%;
+        height: 5px;
+        left: auto;
+        right: auto;
+        top: 97px;
+      }
+
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+layout: true
+name: header_and_banner
+
+<img src="assets/Hawhamburg-logo.svg" class="logo">
+<img src="assets/haw_banner.png" class="banner">
+
+
+---
+class: middle
+
+
+<h1 align="center">
+  Test a Rails 4 application using RSpec 3
+</h1>
+<p align="center">
+  <div align="center" style="line-height: 35px; margin-top: 100px;">
+  Fabian Schimke<br>
+  </div>
+</p>
+
+---
+
+## Agenda
+
+<div style="line-height: 200%; font-size: 1.5em;">
+1. Introduction <br>
+2. Model Specs <br>
+3. Generating test data with factories <br>
+4. Controller Specs <br>
+5. Feature Specs <br>
+6. Test Driven Development <br>
+</font>
+
+---
+template: header_and_banner
+layout: true
+
+## 1. Introduction
+---
+
+<div style="height: 65%;display: flex;justify-content: center;align-items: center;">
+.center[
+## Without test automation --> no code refactoring!]
+</div>
+
+???
+- no maintainance
+- no improvement of code quality
+---
+
+<div style="height: 65%;display: flex;justify-content: center;align-items: center;">
+.left[
+## Tests should be reliable
+## Tests should be easy to write
+## Tests should be easy to understand]
+</div>
+
+---
+template: header_and_banner
+layout: true
+
+## 2. Model Specs
+---
+
+### Anatomy of a model spec
+
+1. Model's create method should be valid for valid attributes
+1. Data that fail validations should not be valid
+1. Class and instance methods should behave like expected
+
+--
+count: false
+```
+describe Contact do
+* it "is valid with a firstname, lastname and email"
+  it "is invalid without a firstname"
+  it "is invalid without a lastname"
+  it "is invalid without an email address"
+  it "is invalid with a duplicate email address"
+  it "filter last name by letter"\
+     " returns a sorted array of results that match"
+end
+```
+
+---
+count: false
+
+### Anatomy of a model spec
+
+1. Model's create method should be valid for valid attributes
+1. Data that fail validations should not be valid
+1. Class and instance methods should behave like expected
+
+```
+describe Contact do
+  it "is valid with a firstname, lastname and email"
+* it "is invalid without a firstname"
+* it "is invalid without a lastname"
+* it "is invalid without an email address"
+* it "is invalid with a duplicate email address"
+  it "filter last name by letter"\
+     " returns a sorted array of results that match"
+end
+```
+---
+count: false
+
+### Anatomy of a model spec
+
+1. Model's create method should be valid for valid attributes
+1. Data that fail validations should not be valid
+1. Class and instance methods should behave like expected
+
+```
+describe Contact do
+  it "is valid with a firstname, lastname and email"
+  it "is invalid without a firstname"
+  it "is invalid without a lastname"
+  it "is invalid without an email address"
+  it "is invalid with a duplicate email address"
+* it "filter last name by letter"\
+*    " returns a sorted array of results that match"
+end
+```
+
+---
+
+```
+describe Contact do
+  it "is valid with a firstname, lastname and email"
+  it "is invalid without a firstname"
+  # ..other invalid test left out
+  describe "filter last name by letter" do
+    context "with matching letters" do
+      it "returns a sorted array of results that match"
+    end
+  end
+end
+```
+<ul class="my-list" style="padding-top: 0px">
+  <li>It describes a set of expectations</li>
+  <li>Each example only expects one thing</li>
+  <li>Each example is explicit </li>
+  <li>Each example's description begins with a verb</li>
+</ul>
+
+---
+
+layout: false
+template: header_and_banner
+
+## 2. Model Specs - Example 1/3
+
+```
+describe Contact do
+  it "is valid with a firstname, lastname and email" do
+    contact = Contact.new(
+      firstname: 'Aaron',
+      lastname: 'Sumner',
+      email: 'tester@example.com')
+
+    expect(contact).to be_valid
+  end
+end
+```
+
+---
+
+layout: false
+template: header_and_banner
+
+## 2. Model Specs - Example 2/3
+
+```
+describe Contact do
+  it "is invalid without a firstname" do
+    contact = Contact.new(firstname: nil)
+    contact.valid?
+
+    expect(contact.errors[:firstname]).to \
+      include("can't be blank")
+  end
+end
+```
+
+---
+
+layout: false
+template: header_and_banner
+
+## 2. Model Specs - Example 3/3
+
+```
+describe "filter last name by letter" do
+  before :each do
+    @smith =   Contact.create( firstname: 'John',
+      lastname: 'Smith',   email: 'jsmith@example.com'
+    )
+    @jones =   Contact.create( firstname: 'Tim',
+      lastname: 'Jones',   email: 'tjones@example.com'
+    )
+    @johnson = Contact.create( firstname: 'John',
+      lastname: 'Johnson', email: 'jjohnson@example.com'
+    )
+  end
+
+  context "with matching letters" do
+    it "returns a sorted array of results that match" do
+      expect(Contact.by_letter("J")).to eq [@johnson, @jones]
+    end
+  end
+end
+
+```
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create({
+        highlightLanguage: 'ruby',
+        highlightStyle: 'monokai-sublime',
+        highlightLines: true,
+        navigation: {
+          scroll: false,
+        }
+      });
+    </script>
+
+
+  </body>
+</html>
