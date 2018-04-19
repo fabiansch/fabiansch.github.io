@@ -84,7 +84,7 @@ Fabian Schimke
 1. Introduction
 1. Model Specs
 1. Generating test data with factories
-1. Controller Specs
+1. Request Specs
 1. Feature Specs
 1. Test Driven Development
 
@@ -339,34 +339,7 @@ end
 ]
 
 ---
-## 3. Generating test data with factories
-
-.extend_horizontal_10[
-```
-FactoryBot.define do
-  factory :contact do
-    firstname { Faker::Name.first_name }
-    lastname  { Faker::Name.last_name }
-    email     { Faker::Internet.email }
-
-    after(:build) do |contact|
-      [:home_phone, :work_phone, :mobile_phone].each do |phone|
-        contact.phones << FactoryBot.build(:phone,
-                                            phone_type: phone,
-                                            contact: contact)
-      end
-    end
-
-    factory :invalid_contact do
-      firstname nil
-    end
-  end
-end
-```
-]
-
----
-## 4. Controller Specs - Example GET 1/2
+## 4. Request Specs - Example GET 1/2
 
 .extend_horizontal_30[
 ```
@@ -389,7 +362,7 @@ end
 ]
 
 ---
-## 4. Controller Specs - Example GET 2/2
+## 4. Request Specs - Example GET 2/2
 
 .small_font_size[
 ```
@@ -399,11 +372,12 @@ describe ContactsController do
       it "populates an array of contacts starting with the letter" do
         smith = create(:contact, lastname: 'Smith')
         jones = create(:contact, lastname: 'Jones')
-        get :index, letter: 'S'
-        expect(assigns(:contacts)).to match_array([smith])
+        get '/contacts', letter: 'S'
+        expect(response.body).to     include(smith.lastname)
+        expect(response.body).not_to include(jones.lastname)
       end
       it "renders the :index template" do
-        get :index, letter: 'S'
+        get '/contacts', letter: 'S'
         expect(response).to render_template :index
       end
     end
@@ -411,11 +385,12 @@ describe ContactsController do
       it "populates an array of all contacts" do
         smith = create(:contact, lastname: 'Smith')
         jones = create(:contact, lastname: 'Jones')
-        get :index
-        expect(assigns(:contacts)).to match_array([smith, jones])
+        get '/contacts'
+        expect(response.body).to include(smith.lastname)
+        expect(response.body).to include(jones.lastname)
       end
       it "renders the :index template" do
-        get :index
+        get '/contacts'
         expect(response).to render_template :index
       end
     end
@@ -425,6 +400,53 @@ end
 ]
 
 ---
+## 5. Feature Specs
+
+```
+FactoryBot.define do
+  factory :user do
+    email { Faker::Internet.email }
+    password 'secret'
+    password_confirmation 'secret'
+
+    factory :admin do
+      admin true
+    end
+  end
+end
+```
+
+---
+## 5. Feature Specs
+
+.small_font_size[
+```
+feature 'Usermanagement' do
+  scenario "adds a new user" do
+    admin = create(:admin)
+
+    sign_in admin
+
+    visit root_path
+    expect {
+      click_link 'Users'
+      click_link 'New User'
+      fill_in 'Email', with: 'newuser@example.com'
+      find('#password').fill_in 'Password', with: 'secret123'
+      find('#password_confirmation').fill_in 'Password confirmation',
+        with: 'secret123'
+      click_button 'Create User'
+    }.to change(User, :count).by(1)
+    expect(current_path).to eq users_path
+    expect(page).to have_content 'New user created'
+    within 'h1' do
+      expect(page).to have_content 'Users'
+    end
+    expect(page).to have_content 'newuser@example.com'
+  end
+end
+```
+]
 
 
 
