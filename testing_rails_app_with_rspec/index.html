@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test a Rails 4 application using RSpec 3</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      img[alt='petrinet of cellphone repair process'] { width: 1100px; }
+
+      body { font-family: 'Droid Serif'; }
+      html * { font-size: 24px; }
+      ol, ul { line-height: 200%; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+        margin-top: 0px;
+      }
+      a {
+        font-size: inherit;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .img-intro {
+        width: 100%;
+        height: auto;
+      }
+      .my-list > li {
+        line-height: 200%;
+      }
+      .extend_horizontal_10 {
+        margin-left:  -10px;
+        margin-right: -10px;
+      }
+      .extend_horizontal_30 {
+        margin-left:  -30px;
+        margin-right: -30px;
+      }
+      .small_font_size * {
+        font-size: 17px;
+      }
+      .logo {
+        position: fixed;
+        width: 225px;
+        top: 20px;
+        right: 20px;
+      }
+      .banner {
+        position: fixed;
+        width: 89%;
+        height: 5px;
+        left: auto;
+        right: auto;
+        top: 97px;
+      }
+
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+layout: true
+name: header_and_banner
+
+<img src="assets/Hawhamburg-logo.svg" class="logo">
+<img src="assets/haw_banner.png" class="banner">
+
+
+---
+class: middle
+
+.center[
+# Test a Rails 4 application using RSpec 3
+<br><br>
+Fabian Schimke
+]
+
+---
+## Agenda
+
+1. Introduction
+1. Model Specs
+1. Generating test data with factories
+1. Request Specs
+1. Feature Specs
+1. Test Driven Development
+
+---
+## 1. Introduction
+
+<div style="height: 65%;display: flex;justify-content: center;align-items: center;">
+.center[
+## Without test automation --> no code refactoring!]
+</div>
+
+???
+- no maintainance
+- no improvement of code quality
+
+---
+## 1. Introduction
+
+<div style="height: 65%;display: flex;justify-content: center;align-items: center;">
+.left[
+## Tests should be reliable
+## Tests should be easy to write
+## Tests should be easy to understand]
+</div>
+
+---
+## 2. Model Specs - Anatomy
+
+1. Model's create method should be valid for valid attributes
+1. Data that fail validations should not be valid
+1. Class and instance methods should behave like expected
+
+--
+count: false
+```
+describe Contact do
+* it "is valid with a firstname, lastname and email"
+  it "is invalid without a firstname"
+  it "is invalid without a lastname"
+  it "is invalid without an email address"
+  it "is invalid with a duplicate email address"
+  it "filter last name by letter"\
+     " returns a sorted array of results that match"
+end
+```
+
+---
+count: false
+## 2. Model Specs - Anatomy
+
+1. Model's create method should be valid for valid attributes
+1. Data that fail validations should not be valid
+1. Class and instance methods should behave like expected
+
+```
+describe Contact do
+  it "is valid with a firstname, lastname and email"
+* it "is invalid without a firstname"
+* it "is invalid without a lastname"
+* it "is invalid without an email address"
+* it "is invalid with a duplicate email address"
+  it "filter last name by letter"\
+     " returns a sorted array of results that match"
+end
+```
+---
+count: false
+## 2. Model Specs - Anatomy
+
+1. Model's create method should be valid for valid attributes
+1. Data that fail validations should not be valid
+1. Class and instance methods should behave like expected
+
+```
+describe Contact do
+  it "is valid with a firstname, lastname and email"
+  it "is invalid without a firstname"
+  it "is invalid without a lastname"
+  it "is invalid without an email address"
+  it "is invalid with a duplicate email address"
+* it "filter last name by letter" \
+*    " returns a sorted array of results that match"
+end
+```
+
+---
+## 2. Model Specs - Anatomy
+
+```
+describe Contact do
+  it "is valid with a firstname, lastname and email"
+  it "is invalid without a firstname"
+  # other invalid tests ...
+  describe "filter last name by letter" do
+    context "with matching letters" do
+      it "returns a sorted array of results that match"
+    end
+  end
+end
+```
+
+- It describes a set of expectations
+- Each example only expects one thing
+- Each example is explicit
+- Each example's description begins with a verb
+
+---
+## 2. Model Specs - Example 1/3
+
+```
+describe Contact do
+  it "is valid with a firstname, lastname and email" do
+    contact = Contact.new(
+      firstname: 'Aaron',
+      lastname: 'Sumner',
+      email: 'tester@example.com')
+
+    expect(contact).to be_valid
+  end
+end
+```
+
+---
+## 2. Model Specs - Example 2/3
+
+```
+describe Contact do
+  it "is invalid without a firstname" do
+    contact = Contact.new(firstname: nil)
+    contact.valid?
+
+    expect(contact.errors[:firstname]).to \
+      include("can't be blank")
+  end
+end
+```
+
+---
+## 2. Model Specs - Example 3/3
+
+```
+describe "filter last name by letter" do
+  before :each do
+    @smith =   Contact.create( firstname: 'John',
+      lastname: 'Smith',   email: 'jsmith@example.com'
+    )
+    @jones =   Contact.create( firstname: 'Tim',
+      lastname: 'Jones',   email: 'tjones@example.com'
+    )
+    @johnson = Contact.create( firstname: 'John',
+      lastname: 'Johnson', email: 'jjohnson@example.com'
+    )
+  end
+
+  context "with matching letters" do
+    it "returns a sorted array of results that match" do
+      expect(Contact.by_letter("J")).to eq [@johnson, @jones]
+    end
+  end
+end
+```
+
+---
+## 2. Model Specs - Summery
+
+- [rspec matchers](https://github.com/rspec/rspec-expectations#built-in-matchers): `be_valid`, `eq`, `include`
+- Use active, explicit expectations
+- Test for what you expect to happen, <br>
+  and for what you expect **not** to happen
+- Test for edge cases
+- Organize your specs with `describe` and `context`
+
+
+---
+## 3. Generating test data
+
+### [Factory Bot](https://github.com/thoughtbot/factory_bot) and [Faker](https://github.com/stympy/faker) helps us to:
+- get rid of syntax that clutters up the code
+- flexible create specific types of data
+- get more realistic fake data
+- easily build more complex associations
+
+---
+## 3. Generating test data - Define 1/3
+
+```
+FactoryBot.define do
+  factory :contact do
+    firstname { Faker::Name.first_name }
+    lastname  { Faker::Name.last_name }
+    email     { Faker::Internet.email }
+  end
+end
+```
+
+---
+## 3. Generating test data - Define 2/3
+
+```
+FactoryBot.define do
+  factory :phone do
+    association :contact
+    phone { Faker::PhoneNumber.phone_number }
+
+    factory :home_phone do
+      phone_type 'home'
+    end
+
+    factory :work_phone do
+      phone_type 'work'
+    end
+
+    factory :mobile_phone do
+      phone_type 'mobile'
+    end
+  end
+end
+```
+
+---
+## 3. Generating test data - Define 3/3
+
+.extend_horizontal_10[
+```
+FactoryBot.define do
+  factory :contact do
+    firstname { Faker::Name.first_name }
+    lastname  { Faker::Name.last_name }
+    email     { Faker::Internet.email }
+
+*   after(:build) do |contact|
+*     [:home_phone, :work_phone, :mobile_phone].each do |phone|
+*       contact.phones << FactoryBot.build(:phone,
+*                                           phone_type: phone,
+*                                           contact: contact)
+*     end
+*   end
+
+    factory :invalid_contact do
+      firstname nil
+    end
+  end
+end
+```
+]
+
+---
+## 4. Request Specs - No Controller Specs
+
+### Why not test Controllers?
+
+- controllers should be skinny
+- one feature spec can accomplish multiple controller specs
+- faster than feature specs but slower than model specs
+
+--
+count: false
+
+### Why test Controllers?
+
+- controllers are classes with methods, too
+- its explicitness helps to fix bugs
+- controller specs are written faster than feature specs
+
+---
+## 4. Request Specs - Anatomy
+
+- the same as model specs
+- but only testing the seven CRUD methods
+
+.extend_horizontal_30[
+```
+describe ContactsController do
+  describe 'GET #index' do
+
+    context 'with params[:letter]' do
+      it "populates an array of contacts starting with the letter"
+      it "renders the :index template"
+    end
+
+    context 'without params[:letter]' do
+      it "populates an array of all contacts"
+      it "renders the :index template"
+    end
+
+  end
+end
+```
+]
+
+---
+count: false
+## 4. Request Specs - Anatomy
+
+.extend_horizontal_30[
+```
+describe ContactsController do
+  describe 'GET #index' do
+
+    context 'with params[:letter]' do
+      it "populates an array of contacts starting with the letter"
+      it "renders the :index template"
+    end
+
+    context 'without params[:letter]' do
+      it "populates an array of all contacts"
+      it "renders the :index template"
+    end
+
+  end
+end
+```
+]
+
+- the same as model specs
+- but only testing the seven CRUD methods
+
+---
+## 4. Request Specs - Example GET
+
+.small_font_size[
+```
+describe ContactsController do
+  describe 'GET#index' do
+    context 'with params[:letter]' do
+      it "populates an array of contacts starting with the letter" do
+        smith = create(:contact, lastname: 'Smith')
+        jones = create(:contact, lastname: 'Jones')
+        get '/contacts', letter: 'S'
+        expect(response.body).to     include(smith.lastname)
+        expect(response.body).not_to include(jones.lastname)
+      end
+      it "renders the :index template" do
+        get '/contacts', letter: 'S'
+        expect(response).to render_template :index
+      end
+    end
+    context 'without params[:letter]' do
+      it "populates an array of all contacts" do
+        smith = create(:contact, lastname: 'Smith')
+        jones = create(:contact, lastname: 'Jones')
+        get '/contacts'
+        expect(response.body).to include(smith.lastname)
+        expect(response.body).to include(jones.lastname)
+      end
+      it "renders the :index template" do
+        get '/contacts'
+        expect(response).to render_template :index
+      end
+    end
+  end
+end
+```
+]
+
+---
+## 5. Feature Specs
+
+```
+FactoryBot.define do
+  factory :user do
+    email { Faker::Internet.email }
+    password 'secret'
+    password_confirmation 'secret'
+
+    factory :admin do
+      admin true
+    end
+  end
+end
+```
+
+---
+## 5. Feature Specs
+
+.small_font_size[
+```
+feature 'Usermanagement' do
+  scenario "adds a new user" do
+    admin = create(:admin)
+
+    sign_in admin
+
+    visit root_path
+    expect {
+      click_link 'Users'
+      click_link 'New User'
+      fill_in 'Email', with: 'newuser@example.com'
+      find('#password').fill_in 'Password', with: 'secret123'
+      find('#password_confirmation').fill_in 'Password confirmation',
+        with: 'secret123'
+      click_button 'Create User'
+    }.to change(User, :count).by(1)
+    expect(current_path).to eq users_path
+    expect(page).to have_content 'New user created'
+    within 'h1' do
+      expect(page).to have_content 'Users'
+    end
+    expect(page).to have_content 'newuser@example.com'
+  end
+end
+```
+]
+
+---
+## Quellen
+
+- https://leanpub.com/everydayrailsrspec
+
+
+.center[![Cover of book](assets/book_cover.jpeg)]
+
+
+
+
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create({
+        highlightLanguage: 'ruby',
+        highlightStyle: 'monokai-sublime',
+        highlightLines: true,
+        navigation: {
+          scroll: false,
+        }
+      });
+    </script>
+
+
+  </body>
+</html>
