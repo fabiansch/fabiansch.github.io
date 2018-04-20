@@ -111,9 +111,7 @@ Fabian Schimke
 </div>
 
 ---
-## 2. Model Specs
-
-### Anatomy of a model spec
+## 2. Model Specs - Anatomy
 
 1. Model's create method should be valid for valid attributes
 1. Data that fail validations should not be valid
@@ -135,9 +133,7 @@ end
 
 ---
 count: false
-## 2. Model Specs
-
-### Anatomy of a model spec
+## 2. Model Specs - Anatomy
 
 1. Model's create method should be valid for valid attributes
 1. Data that fail validations should not be valid
@@ -156,9 +152,7 @@ end
 ```
 ---
 count: false
-## 2. Model Specs
-
-### Anatomy of a model spec
+## 2. Model Specs - Anatomy
 
 1. Model's create method should be valid for valid attributes
 1. Data that fail validations should not be valid
@@ -177,7 +171,7 @@ end
 ```
 
 ---
-## 2. Model Specs
+## 2. Model Specs - Anatomy
 
 ```
 describe Contact do
@@ -191,12 +185,11 @@ describe Contact do
   end
 end
 ```
-<ul class="my-list" style="padding-top: 0px">
-  <li>It describes a set of expectations</li>
-  <li>Each example only expects one thing</li>
-  <li>Each example is explicit </li>
-  <li>Each example's description begins with a verb</li>
-</ul>
+
+- It describes a set of expectations
+- Each example only expects one thing
+- Each example is explicit
+- Each example's description begins with a verb
 
 ---
 ## 2. Model Specs - Example 1/3
@@ -322,13 +315,13 @@ FactoryBot.define do
     lastname  { Faker::Name.last_name }
     email     { Faker::Internet.email }
 
-    after(:build) do |contact|
-      [:home_phone, :work_phone, :mobile_phone].each do |phone|
-        contact.phones << FactoryBot.build(:phone,
-                                            phone_type: phone,
-                                            contact: contact)
-      end
-    end
+*   after(:build) do |contact|
+*     [:home_phone, :work_phone, :mobile_phone].each do |phone|
+*       contact.phones << FactoryBot.build(:phone,
+*                                           phone_type: phone,
+*                                           contact: contact)
+*     end
+*   end
 
     factory :invalid_contact do
       firstname nil
@@ -339,7 +332,28 @@ end
 ]
 
 ---
-## 4. Request Specs - Example GET 1/2
+## 4. Request Specs - No Controller Specs
+
+### Why not test Controllers?
+
+- controllers should be skinny
+- one feature spec can accomplish multiple controller specs
+- faster than feature specs but slower than model specs
+
+--
+count: false
+
+### Why test Controllers?
+
+- controllers are classes with methods, too
+- its explicitness helps to fix bugs
+- controller specs are written faster than feature specs
+
+---
+## 4. Request Specs - Anatomy
+
+- the same as model specs
+- but only testing the seven CRUD methods
 
 .extend_horizontal_30[
 ```
@@ -362,7 +376,34 @@ end
 ]
 
 ---
-## 4. Request Specs - Example GET 2/2
+count: false
+## 4. Request Specs - Anatomy
+
+.extend_horizontal_30[
+```
+describe ContactsController do
+  describe 'GET #index' do
+
+    context 'with params[:letter]' do
+      it "populates an array of contacts starting with the letter"
+      it "renders the :index template"
+    end
+
+    context 'without params[:letter]' do
+      it "populates an array of all contacts"
+      it "renders the :index template"
+    end
+
+  end
+end
+```
+]
+
+- the same as model specs
+- but only testing the seven CRUD methods
+
+---
+## 4. Request Specs - Example GET
 
 .small_font_size[
 ```
@@ -447,6 +488,16 @@ feature 'Usermanagement' do
 end
 ```
 ]
+
+---
+## Quellen
+
+- https://leanpub.com/everydayrailsrspec
+
+
+.center[![Cover of book](assets/book_cover.jpeg)]
+
+
 
 
 
