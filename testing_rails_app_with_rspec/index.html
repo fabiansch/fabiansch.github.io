@@ -4,9 +4,7 @@
     <title>Test a Rails 4 application using RSpec 3</title>
     <meta charset="utf-8">
     <style>
-      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
-      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
-      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+      @import url('assets/fonts/fonts.css');
 
       img[alt='petrinet of cellphone repair process'] { width: 1100px; }
 
@@ -264,8 +262,8 @@ end
 ### [Factory Bot](https://github.com/thoughtbot/factory_bot) and [Faker](https://github.com/stympy/faker) helps us to:
 - get rid of syntax that clutters up the code
 - flexible create specific types of data
-- get more realistic fake data
 - easily build more complex associations
+- get more realistic fake data
 
 ---
 ## 3. Generating test data - Define 1/3
@@ -443,6 +441,14 @@ end
 ---
 ## 5. Feature Specs
 
+### Why onother layer of test?
+
+- controller tests are just relatively simple unit test
+-
+
+---
+## 5. Feature Specs
+
 ```
 FactoryBot.define do
   factory :user do
@@ -502,7 +508,7 @@ end
 
 
     </textarea>
-    <script src="https://remarkjs.com/downloads/remark-latest.min.js">
+    <script src="assets/remark.min.js">
     </script>
     <script>
       var slideshow = remark.create({
