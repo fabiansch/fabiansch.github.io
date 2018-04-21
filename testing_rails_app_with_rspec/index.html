@@ -16,6 +16,9 @@
         font-weight: normal;
         margin-top: 0px;
       }
+      th {
+        padding-right: 40px;
+      }
       a {
         font-size: inherit;
       }
@@ -98,8 +101,9 @@ Fabian Schimke
 </div>
 
 ???
-- no maintainance
 - no improvement of code quality
+- no change of technology
+- no maintainance
 
 ---
 ## 1. Introduction
@@ -111,6 +115,12 @@ Fabian Schimke
 ## Tests should be easy to understand]
 </div>
 
+???
+- no focus on speed
+- no focus on overly DRY (don't repeat yourself) code
+
+- what matter is that you have test in general and that they are reliable and understandable.
+
 ---
 ## 2. Model Specs - Anatomy
 
@@ -119,7 +129,7 @@ Fabian Schimke
 1. Class and instance methods should behave like expected
 
 --
-count: false
+
 ```
 describe Contact do
 * it "is valid with a firstname, lastname and email"
@@ -132,6 +142,8 @@ describe Contact do
 end                             # spec/models/contact_spec.rb
 
 ```
+???
+- example for a valid contact
 
 ---
 count: false
@@ -152,6 +164,9 @@ describe Contact do
      " returns a sorted array of results that match"
 end                             # spec/models/contact_spec.rb
 ```
+???
+- examples for invalid contacts
+
 ---
 count: false
 ## 2. Model Specs - Anatomy
@@ -171,6 +186,8 @@ describe Contact do
 *    " returns a sorted array of results that match"
 end                             # spec/models/contact_spec.rb
 ```
+???
+- example for a class method
 
 ---
 ## 2. Model Specs - Anatomy
@@ -180,19 +197,71 @@ describe Contact do
   it "is valid with a firstname, lastname and email"
   it "is invalid without a firstname"
   # other invalid tests ...
-  describe "filter last name by letter" do
-    context "with matching letters" do
-      it "returns a sorted array of results that match"
-    end
-  end
+  it "filter last name by letter " \
+     "returns a sorted array of results that match"
 end                             # spec/models/contact_spec.rb
 ```
-
 - It describes a set of expectations
 - Each example only expects one thing
 - Each example is explicit
 - Each example's description begins with a verb
 
+???
+this principles can lead us to the idea
+to give the last test some structure
+
+---
+count: false
+## 2. Model Specs - Anatomy
+
+```
+describe Contact do
+  it "is valid with a firstname, lastname and email"
+  it "is invalid without a firstname"
+  # other invalid tests ...
+  describe "filter last name by letter" do
+    it "returns a sorted array of results that match"
+  end
+end                             # spec/models/contact_spec.rb
+```
+- It describes a set of expectations
+- Each example only expects one thing
+- Each example is explicit
+- Each example's description begins with a verb
+
+???
+having done that we might also come up to test what we do not expect
+
+---
+count: false
+## 2. Model Specs - Anatomy
+
+.move_up[
+```
+describe Contact do
+  it "is valid with a firstname, lastname and email"
+  it "is invalid without a firstname"
+  # other invalid tests ...
+  describe "filter last name by letter" do
+    context "with matching letters" do
+      it "returns a sorted array of results that match"
+    end
+    context "with non-matching letters" do
+      it "omits results that do not match"
+    end
+  end
+end                             # spec/models/contact_spec.rb
+```
+]
+.move_up[
+- It describes a set of expectations
+- Each example only expects one thing
+- Each example is explicit
+- Each example's description begins with a verb
+]
+
+???
+lets implement that tests
 ---
 ## 2. Model Specs - Example 1/3
 
@@ -272,6 +341,9 @@ end                             # spec/models/contact_spec.rb
 - easily build more complex associations
 - get more realistic fake data
 
+???
+lets have a look on some test data
+
 ---
 ## 3. Generating test data - Define Contacts <b>1</b>
 
@@ -284,7 +356,9 @@ FactoryBot.define do
   end
 end                              # spec/factories/contacts.rb
 ```
-
+???
+- get rid of syntax that clutters up the code
+- get more realistic fake data
 ---
 ## 3. Generating test data - Define Phones
 
@@ -307,8 +381,11 @@ FactoryBot.define do
     end
   end
 end                                # spec/factories/phones.rb
-
 ```
+???
+- get rid of syntax that clutters up the code
+- get more realistic fake data
+- flexible create specific types of data
 
 ---
 ## 3. Generating test data - Define Contacts <b>2</b>
@@ -336,6 +413,11 @@ FactoryBot.define do
 end                                # spec/factories/contacts.rb
 ```
 ]
+???
+- get rid of syntax that clutters up the code
+- get more realistic fake data
+- flexible create specific types of data
+- easily build more complex associations
 
 ---
 ## 3. Generating test data - Define Users
@@ -352,7 +434,6 @@ FactoryBot.define do
     end
   end
 end                                 # spec/factories/users.rb
-
 ```
 
 
@@ -365,8 +446,10 @@ end                                 # spec/factories/users.rb
 - one feature spec can accomplish multiple controller specs
 - faster than feature specs but slower than model specs
 
+???
+a feature spec is a kind of integration test and also called acceptence test
+
 --
-count: false
 
 ### Why test Controllers?
 
@@ -378,10 +461,32 @@ count: false
 ## 4. Request Specs - Anatomy
 
 - the same as model specs
-- but only testing the seven CRUD methods
+- but only testing the seven CRUD methods:
 
+| controller methods | http methods | routes |
+| :---               |:---          |:---    |
+| new                | GET          | /contacts/new    |
+
+--
+| create             | POST         | /contacts        |
+
+--
+| show               | GET          | /contacts/1      |
+
+--
+| index              | GET          | /contacts        |
+
+--
+| edit               | GET          | /contacts/1/edit |
+
+--
+| update             | PATCH/PUT    | /contacts/1      |
+
+--
+| destroy            | DELETE       | /contacts/1      |
+???
+now lets have a look on the structure
 ---
-count: false
 ## 4. Request Specs - Anatomy
 
 .extend_horizontal_30[
@@ -406,7 +511,8 @@ end                    # spec/requests/contacts_management_spec.rb
 
 - the same as model specs
 - but only testing the seven CRUD methods
-
+???
+and now lets implement them
 ---
 ## 4. Request Specs - Example GET
 
@@ -451,11 +557,11 @@ end                                  # spec/requests/contacts_management_spec.rb
 ---
 ## 5. Feature Specs
 
-### Why onother layer of test?
+### Why another layer of test?
 
 - controller tests are just relatively simple unit test
 - feature specs test a wide range of functionality
-- feature specs can be used to replicte bug reports
+- feature specs can be used to replicate bug reports
 - [Capybara](https://github.com/teamcapybara/capybara) helps to simulate real-world use of application
 
 ---
@@ -572,8 +678,10 @@ end                                                # spec/features/users_spec.rb
         highlightLines: true,
         navigation: {
           scroll: false,
-        }
+        },
+        countIncrementalSlides: false
       });
+
     </script>
 
 
