@@ -38,6 +38,9 @@
       .small_font_size * {
         font-size: 17px;
       }
+      .move_up {
+        margin-top: -22px;
+      }
       .logo {
         position: fixed;
         width: 225px;
@@ -126,7 +129,8 @@ describe Contact do
   it "is invalid with a duplicate email address"
   it "filter last name by letter"\
      " returns a sorted array of results that match"
-end
+end                             # spec/models/contact_spec.rb
+
 ```
 
 ---
@@ -146,7 +150,7 @@ describe Contact do
 * it "is invalid with a duplicate email address"
   it "filter last name by letter"\
      " returns a sorted array of results that match"
-end
+end                             # spec/models/contact_spec.rb
 ```
 ---
 count: false
@@ -165,7 +169,7 @@ describe Contact do
   it "is invalid with a duplicate email address"
 * it "filter last name by letter" \
 *    " returns a sorted array of results that match"
-end
+end                             # spec/models/contact_spec.rb
 ```
 
 ---
@@ -181,7 +185,7 @@ describe Contact do
       it "returns a sorted array of results that match"
     end
   end
-end
+end                             # spec/models/contact_spec.rb
 ```
 
 - It describes a set of expectations
@@ -202,7 +206,7 @@ describe Contact do
 
     expect(contact).to be_valid
   end
-end
+end                             # spec/models/contact_spec.rb
 ```
 
 ---
@@ -217,34 +221,37 @@ describe Contact do
     expect(contact.errors[:firstname]).to \
       include("can't be blank")
   end
-end
+end                             # spec/models/contact_spec.rb
 ```
 
 ---
 ## 2. Model Specs - Example 3/3
 
+.move_up[
 ```
-describe "filter last name by letter" do
-  before :each do
-    @smith =   Contact.create( firstname: 'John',
-      lastname: 'Smith',   email: 'jsmith@example.com'
-    )
-    @jones =   Contact.create( firstname: 'Tim',
-      lastname: 'Jones',   email: 'tjones@example.com'
-    )
-    @johnson = Contact.create( firstname: 'John',
-      lastname: 'Johnson', email: 'jjohnson@example.com'
-    )
-  end
+describe Contact do
+  describe "filter last name by letter" do
+    before :each do
+      @smith =   Contact.create( firstname: 'John',
+        lastname: 'Smith',   email: 'jsmith@example.com'
+      )
+      @jones =   Contact.create( firstname: 'Tim',
+        lastname: 'Jones',   email: 'tjones@example.com'
+      )
+      @johnson = Contact.create( firstname: 'John',
+        lastname: 'Johnson', email: 'jjohnson@example.com'
+      )
+    end
 
-  context "with matching letters" do
-    it "returns a sorted array of results that match" do
-      expect(Contact.by_letter("J")).to eq [@johnson, @jones]
+    context "with matching letters" do
+      it "returns a sorted array of results that match" do
+        expect(Contact.by_letter("J")).to eq [@johnson, @jones]
+      end
     end
   end
-end
+end                             # spec/models/contact_spec.rb
 ```
-
+]
 ---
 ## 2. Model Specs - Summery
 
@@ -266,7 +273,7 @@ end
 - get more realistic fake data
 
 ---
-## 3. Generating test data - Define 1/3
+## 3. Generating test data - Define Contacts <b>1</b>
 
 ```
 FactoryBot.define do
@@ -275,11 +282,11 @@ FactoryBot.define do
     lastname  { Faker::Name.last_name }
     email     { Faker::Internet.email }
   end
-end
+end                              # spec/factories/contacts.rb
 ```
 
 ---
-## 3. Generating test data - Define 2/3
+## 3. Generating test data - Define Phones
 
 ```
 FactoryBot.define do
@@ -299,11 +306,12 @@ FactoryBot.define do
       phone_type 'mobile'
     end
   end
-end
+end                                # spec/factories/phones.rb
+
 ```
 
 ---
-## 3. Generating test data - Define 3/3
+## 3. Generating test data - Define Contacts <b>2</b>
 
 .extend_horizontal_10[
 ```
@@ -325,9 +333,28 @@ FactoryBot.define do
       firstname nil
     end
   end
-end
+end                                # spec/factories/contacts.rb
 ```
 ]
+
+---
+## 3. Generating test data - Define Users
+
+```
+FactoryBot.define do
+  factory :user do
+    email { Faker::Internet.email }
+    password 'secret'
+    password_confirmation 'secret'
+
+    factory :admin do
+      admin true
+    end
+  end
+end                                 # spec/factories/users.rb
+
+```
+
 
 ---
 ## 4. Request Specs - No Controller Specs
@@ -353,26 +380,6 @@ count: false
 - the same as model specs
 - but only testing the seven CRUD methods
 
-.extend_horizontal_30[
-```
-describe ContactsController do
-  describe 'GET #index' do
-
-    context 'with params[:letter]' do
-      it "populates an array of contacts starting with the letter"
-      it "renders the :index template"
-    end
-
-    context 'without params[:letter]' do
-      it "populates an array of all contacts"
-      it "renders the :index template"
-    end
-
-  end
-end
-```
-]
-
 ---
 count: false
 ## 4. Request Specs - Anatomy
@@ -393,7 +400,7 @@ describe ContactsController do
     end
 
   end
-end
+end                    # spec/requests/contacts_management_spec.rb
 ```
 ]
 
@@ -404,6 +411,7 @@ end
 ## 4. Request Specs - Example GET
 
 .small_font_size[
+.move_up[
 ```
 describe ContactsController do
   describe 'GET#index' do
@@ -434,8 +442,10 @@ describe ContactsController do
       end
     end
   end
-end
+end                                  # spec/requests/contacts_management_spec.rb
+
 ```
+]
 ]
 
 ---
@@ -444,27 +454,72 @@ end
 ### Why onother layer of test?
 
 - controller tests are just relatively simple unit test
--
+- feature specs test a wide range of functionality
+- feature specs can be used to replicte bug reports
+- [Capybara](https://github.com/teamcapybara/capybara) helps to simulate real-world use of application
 
 ---
-## 5. Feature Specs
+## 5. Feature Specs - Part 1/6
+
+.center[
+![click login picture](assets/feature_click_login.png)
+]
+
+---
+## 5. Feature Specs - Part 2/6
+
+.center[
+![do login picture](assets/feature_do_login.png)
+]
+
+---
+## 5. Feature Specs - Part 3/6
+
+.center[
+![click users picture](assets/feature_click_users.png)
+]
+
+---
+## 5. Feature Specs - Part 4/6
+
+.center[
+![click new user picture](assets/feature_click_new_user.png)
+]
+
+---
+## 5. Feature Specs - Part 5/6
+
+.center[
+![click create user picture](assets/feature_click_create_user.png)
+]
+
+---
+## 5. Feature Specs - Part 6/6
+
+.center[
+![review creation picture](assets/feature_review_creation.png)
+]
+
+---
+## 5. Feature Specs - Example 1/2
 
 ```
-FactoryBot.define do
-  factory :user do
-    email { Faker::Internet.email }
-    password 'secret'
-    password_confirmation 'secret'
+module LoginMacros
 
-    factory :admin do
-      admin true
-    end
+  def sign_in admin
+    visit root_path
+    click_link 'Log In'
+    fill_in 'Email', with: admin.email
+    fill_in 'Password', with: admin.password
+    click_button 'Log In'
   end
-end
+
+end                            # spec/support/login_macros.rb
+
 ```
 
 ---
-## 5. Feature Specs
+## 5. Feature Specs - Example 2/2
 
 .small_font_size[
 ```
@@ -491,7 +546,7 @@ feature 'Usermanagement' do
     end
     expect(page).to have_content 'newuser@example.com'
   end
-end
+end                                                # spec/features/users_spec.rb
 ```
 ]
 
