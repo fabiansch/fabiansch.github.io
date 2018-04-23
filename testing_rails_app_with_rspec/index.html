@@ -4,9 +4,7 @@
     <title>Test a Rails 4 application using RSpec 3</title>
     <meta charset="utf-8">
     <style>
-      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
-      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
-      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+      @import url('assets/fonts/fonts.css');
 
       img[alt='petrinet of cellphone repair process'] { width: 1100px; }
 
@@ -17,6 +15,9 @@
         font-family: 'Yanone Kaffeesatz';
         font-weight: normal;
         margin-top: 0px;
+      }
+      th {
+        padding-right: 40px;
       }
       a {
         font-size: inherit;
@@ -39,6 +40,9 @@
       }
       .small_font_size * {
         font-size: 17px;
+      }
+      .move_up {
+        margin-top: -22px;
       }
       .logo {
         position: fixed;
@@ -73,7 +77,7 @@ name: header_and_banner
 class: middle
 
 .center[
-# Test a Rails 4 application using RSpec 3
+# Test a Rails 5 web application using RSpec 3
 <br><br>
 Fabian Schimke
 ]
@@ -86,7 +90,6 @@ Fabian Schimke
 1. Generating test data with factories
 1. Request Specs
 1. Feature Specs
-1. Test Driven Development
 
 ---
 ## 1. Introduction
@@ -97,8 +100,9 @@ Fabian Schimke
 </div>
 
 ???
-- no maintainance
 - no improvement of code quality
+- no change of technology
+- no maintainance
 
 ---
 ## 1. Introduction
@@ -110,6 +114,12 @@ Fabian Schimke
 ## Tests should be easy to understand]
 </div>
 
+???
+- no focus on speed
+- no focus on overly DRY (don't repeat yourself) code
+
+- what matter is that you have test in general and that they are reliable and understandable.
+
 ---
 ## 2. Model Specs - Anatomy
 
@@ -118,7 +128,7 @@ Fabian Schimke
 1. Class and instance methods should behave like expected
 
 --
-count: false
+
 ```
 describe Contact do
 * it "is valid with a firstname, lastname and email"
@@ -128,8 +138,11 @@ describe Contact do
   it "is invalid with a duplicate email address"
   it "filter last name by letter"\
      " returns a sorted array of results that match"
-end
+end                             # spec/models/contact_spec.rb
+
 ```
+???
+- example for a valid contact
 
 ---
 count: false
@@ -148,8 +161,11 @@ describe Contact do
 * it "is invalid with a duplicate email address"
   it "filter last name by letter"\
      " returns a sorted array of results that match"
-end
+end                             # spec/models/contact_spec.rb
 ```
+???
+- examples for invalid contacts
+
 ---
 count: false
 ## 2. Model Specs - Anatomy
@@ -167,8 +183,10 @@ describe Contact do
   it "is invalid with a duplicate email address"
 * it "filter last name by letter" \
 *    " returns a sorted array of results that match"
-end
+end                             # spec/models/contact_spec.rb
 ```
+???
+- example for a class method
 
 ---
 ## 2. Model Specs - Anatomy
@@ -178,18 +196,68 @@ describe Contact do
   it "is valid with a firstname, lastname and email"
   it "is invalid without a firstname"
   # other invalid tests ...
-  describe "filter last name by letter" do
-    context "with matching letters" do
-      it "returns a sorted array of results that match"
-    end
-  end
-end
+  it "filter last name by letter " \
+     "returns a sorted array of results that match"
+end                             # spec/models/contact_spec.rb
 ```
-
 - It describes a set of expectations
 - Each example only expects one thing
 - Each example is explicit
 - Each example's description begins with a verb
+
+???
+this principles can lead us to the idea
+to give the last test some structure
+
+---
+count: false
+## 2. Model Specs - Anatomy
+
+```
+describe Contact do
+  it "is valid with a firstname, lastname and email"
+  it "is invalid without a firstname"
+  # other invalid tests ...
+  describe "filter last name by letter" do
+    it "returns a sorted array of results that match"
+  end
+end                             # spec/models/contact_spec.rb
+```
+- It describes a set of expectations
+- Each example only expects one thing
+- Each example is explicit
+- Each example's description begins with a verb
+
+???
+having done that we might also come up to test what we do not expect
+
+---
+count: false
+## 2. Model Specs - Anatomy
+
+.move_up[
+```
+describe Contact do
+  it "is valid with a firstname, lastname and email"
+  it "is invalid without a firstname"
+  # other invalid tests ...
+  describe "filter last name by letter" do
+    context "with matching letters" do
+      it "returns a sorted array of results that match"
+    end
+    context "with non-matching letters" do
+      it "omits results that do not match"
+    end
+  end
+end                             # spec/models/contact_spec.rb
+```
+]
+.move_up[
+- It describes a set of expectations
+- Each example only expects one thing
+- Each example is explicit
+- Each example's description begins with a verb
+]
 
 ---
 ## 2. Model Specs - Example 1/3
@@ -204,8 +272,10 @@ describe Contact do
 
     expect(contact).to be_valid
   end
-end
+end                             # spec/models/contact_spec.rb
 ```
+???
+lets implement that tests
 
 ---
 ## 2. Model Specs - Example 2/3
@@ -219,34 +289,41 @@ describe Contact do
     expect(contact.errors[:firstname]).to \
       include("can't be blank")
   end
-end
+end                             # spec/models/contact_spec.rb
 ```
 
 ---
 ## 2. Model Specs - Example 3/3
 
+.small_font_size[
 ```
-describe "filter last name by letter" do
-  before :each do
-    @smith =   Contact.create( firstname: 'John',
-      lastname: 'Smith',   email: 'jsmith@example.com'
-    )
-    @jones =   Contact.create( firstname: 'Tim',
-      lastname: 'Jones',   email: 'tjones@example.com'
-    )
-    @johnson = Contact.create( firstname: 'John',
-      lastname: 'Johnson', email: 'jjohnson@example.com'
-    )
-  end
-
-  context "with matching letters" do
-    it "returns a sorted array of results that match" do
-      expect(Contact.by_letter("J")).to eq [@johnson, @jones]
+describe Contact do
+  describe "filter last name by letter" do
+    before :each do
+      @smith =   Contact.create( firstname: 'John',
+        lastname: 'Smith',   email: 'jsmith@example.com'
+      )
+      @jones =   Contact.create( firstname: 'Tim',
+        lastname: 'Jones',   email: 'tjones@example.com'
+      )
+      @johnson = Contact.create( firstname: 'John',
+        lastname: 'Johnson', email: 'jjohnson@example.com'
+      )
+    end
+    context "with matching letters" do
+      it "returns a sorted array of results that match" do
+        expect(Contact.by_letter("J")).to eq [@johnson, @jones]
+      end
+    end
+    context "with non-matching letters" do
+      it "omits results that do not match" do
+        expect(Contact.by_letter("J")).not_to include @smith
+      end
     end
   end
-end
+end                                                # spec/models/contact_spec.rb
 ```
-
+]
 ---
 ## 2. Model Specs - Summery
 
@@ -264,11 +341,11 @@ end
 ### [Factory Bot](https://github.com/thoughtbot/factory_bot) and [Faker](https://github.com/stympy/faker) helps us to:
 - get rid of syntax that clutters up the code
 - flexible create specific types of data
-- get more realistic fake data
 - easily build more complex associations
+- get more realistic fake data
 
 ---
-## 3. Generating test data - Define 1/3
+## 3. Generating test data - Define Contacts <b>1</b>
 
 ```
 FactoryBot.define do
@@ -277,11 +354,15 @@ FactoryBot.define do
     lastname  { Faker::Name.last_name }
     email     { Faker::Internet.email }
   end
-end
+end                              # spec/factories/contacts.rb
 ```
+???
+lets have a look on some test data:
 
+- get rid of syntax that clutters up the code
+- get more realistic fake data
 ---
-## 3. Generating test data - Define 2/3
+## 3. Generating test data - Define Phones
 
 ```
 FactoryBot.define do
@@ -301,11 +382,15 @@ FactoryBot.define do
       phone_type 'mobile'
     end
   end
-end
+end                                # spec/factories/phones.rb
 ```
+???
+- get rid of syntax that clutters up the code
+- get more realistic fake data
+- flexible create specific types of data
 
 ---
-## 3. Generating test data - Define 3/3
+## 3. Generating test data - Define Contacts <b>2</b>
 
 .extend_horizontal_10[
 ```
@@ -327,121 +412,17 @@ FactoryBot.define do
       firstname nil
     end
   end
-end
+end                                # spec/factories/contacts.rb
 ```
 ]
+???
+- get rid of syntax that clutters up the code
+- get more realistic fake data
+- flexible create specific types of data
+- easily build more complex associations
 
 ---
-## 4. Request Specs - No Controller Specs
-
-### Why not test Controllers?
-
-- controllers should be skinny
-- one feature spec can accomplish multiple controller specs
-- faster than feature specs but slower than model specs
-
---
-count: false
-
-### Why test Controllers?
-
-- controllers are classes with methods, too
-- its explicitness helps to fix bugs
-- controller specs are written faster than feature specs
-
----
-## 4. Request Specs - Anatomy
-
-- the same as model specs
-- but only testing the seven CRUD methods
-
-.extend_horizontal_30[
-```
-describe ContactsController do
-  describe 'GET #index' do
-
-    context 'with params[:letter]' do
-      it "populates an array of contacts starting with the letter"
-      it "renders the :index template"
-    end
-
-    context 'without params[:letter]' do
-      it "populates an array of all contacts"
-      it "renders the :index template"
-    end
-
-  end
-end
-```
-]
-
----
-count: false
-## 4. Request Specs - Anatomy
-
-.extend_horizontal_30[
-```
-describe ContactsController do
-  describe 'GET #index' do
-
-    context 'with params[:letter]' do
-      it "populates an array of contacts starting with the letter"
-      it "renders the :index template"
-    end
-
-    context 'without params[:letter]' do
-      it "populates an array of all contacts"
-      it "renders the :index template"
-    end
-
-  end
-end
-```
-]
-
-- the same as model specs
-- but only testing the seven CRUD methods
-
----
-## 4. Request Specs - Example GET
-
-.small_font_size[
-```
-describe ContactsController do
-  describe 'GET#index' do
-    context 'with params[:letter]' do
-      it "populates an array of contacts starting with the letter" do
-        smith = create(:contact, lastname: 'Smith')
-        jones = create(:contact, lastname: 'Jones')
-        get '/contacts', letter: 'S'
-        expect(response.body).to     include(smith.lastname)
-        expect(response.body).not_to include(jones.lastname)
-      end
-      it "renders the :index template" do
-        get '/contacts', letter: 'S'
-        expect(response).to render_template :index
-      end
-    end
-    context 'without params[:letter]' do
-      it "populates an array of all contacts" do
-        smith = create(:contact, lastname: 'Smith')
-        jones = create(:contact, lastname: 'Jones')
-        get '/contacts'
-        expect(response.body).to include(smith.lastname)
-        expect(response.body).to include(jones.lastname)
-      end
-      it "renders the :index template" do
-        get '/contacts'
-        expect(response).to render_template :index
-      end
-    end
-  end
-end
-```
-]
-
----
-## 5. Feature Specs
+## 3. Generating test data - Define Users
 
 ```
 FactoryBot.define do
@@ -454,11 +435,201 @@ FactoryBot.define do
       admin true
     end
   end
-end
+end                                 # spec/factories/users.rb
 ```
+
+
+---
+## 4. Request Specs - No Controller Specs
+
+### Why not test Controllers?
+
+- controllers should be skinny
+- one feature spec can accomplish multiple controller specs
+- faster than feature specs but slower than model specs
+
+???
+a feature spec is a kind of integration test and also called acceptence test
+
+--
+
+### Why test Controllers?
+
+- controllers are classes with methods, too
+- its explicitness helps to fix bugs
+- controller specs are written faster than feature specs
+
+---
+## 4. Request Specs - Anatomy
+
+- the same as model specs
+- but only testing the seven CRUD methods:
+
+| controller methods | http methods | routes |
+| :---               |:---          |:---    |
+| new                | GET          | /contacts/new    |
+
+--
+| create             | POST         | /contacts        |
+
+--
+| show               | GET          | /contacts/1      |
+
+--
+| index              | GET          | /contacts        |
+
+--
+| edit               | GET          | /contacts/1/edit |
+
+--
+| update             | PATCH/PUT    | /contacts/1      |
+
+--
+| destroy            | DELETE       | /contacts/1      |
+???
+now lets have a look on the structure
+---
+## 4. Request Specs - Anatomy
+
+.extend_horizontal_30[
+```
+describe ContactsController do
+  describe 'GET #index' do
+
+    context 'with params[:letter]' do
+      it "populates an array of contacts starting with the letter"
+      it "renders the :index template"
+    end
+
+    context 'without params[:letter]' do
+      it "populates an array of all contacts"
+      it "renders the :index template"
+    end
+
+  end
+end                    # spec/requests/contacts_management_spec.rb
+```
+]
+
+- the same as model specs
+- but only testing the seven CRUD methods
+???
+and now lets implement them
+---
+## 4. Request Specs - Example GET
+
+.small_font_size[
+.move_up[
+```
+describe ContactsController do
+  describe 'GET#index' do
+    context 'with params[:letter]' do
+      it "populates an array of contacts starting with the letter" do
+        smith = create(:contact, lastname: 'Smith')
+        jones = create(:contact, lastname: 'Jones')
+        get '/contacts', params: { letter: 'S' }
+        expect(response.body).to     include(smith.lastname)
+        expect(response.body).not_to include(jones.lastname)
+      end
+      it "renders the :index template" do
+        get '/contacts', params: { letter: 'S' }
+        expect(response).to have_http_status "200"
+      end
+    end
+    context 'without params[:letter]' do
+      it "populates an array of all contacts" do
+        smith = create(:contact, lastname: 'Smith')
+        jones = create(:contact, lastname: 'Jones')
+        get '/contacts'
+        expect(response.body).to include(smith.lastname)
+        expect(response.body).to include(jones.lastname)
+      end
+      it "renders the :index template" do
+        get '/contacts'
+        expect(response).to have_http_status "200"
+      end
+    end
+  end
+end                                  # spec/requests/contacts_management_spec.rb
+
+```
+]
+]
 
 ---
 ## 5. Feature Specs
+
+### Why another layer of test?
+
+- controller tests are just relatively simple unit test
+- feature specs test a wide range of functionality
+- feature specs can be used to replicate bug reports
+- [Capybara](https://github.com/teamcapybara/capybara) helps to simulate real-world use of application
+
+---
+## 5. Feature Specs - Part 1/6
+
+.center[
+![click login picture](assets/feature_click_login.png)
+]
+???
+lets have a look on what we want to test
+
+---
+## 5. Feature Specs - Part 2/6
+
+.center[
+![do login picture](assets/feature_do_login.png)
+]
+
+---
+## 5. Feature Specs - Part 3/6
+
+.center[
+![click users picture](assets/feature_click_users.png)
+]
+
+---
+## 5. Feature Specs - Part 4/6
+
+.center[
+![click new user picture](assets/feature_click_new_user.png)
+]
+
+---
+## 5. Feature Specs - Part 5/6
+
+.center[
+![click create user picture](assets/feature_click_create_user.png)
+]
+
+---
+## 5. Feature Specs - Part 6/6
+
+.center[
+![review creation picture](assets/feature_review_creation.png)
+]
+
+---
+## 5. Feature Specs - Example 1/2
+
+```
+module LoginMacros
+
+  def sign_in admin
+    visit root_path
+    click_link 'Log In'
+    fill_in 'Email', with: admin.email
+    fill_in 'Password', with: admin.password
+    click_button 'Log In'
+  end
+
+end                            # spec/support/login_macros.rb
+
+```
+
+---
+## 5. Feature Specs - Example 2/2
 
 .small_font_size[
 ```
@@ -485,7 +656,7 @@ feature 'Usermanagement' do
     end
     expect(page).to have_content 'newuser@example.com'
   end
-end
+end                                                # spec/features/users_spec.rb
 ```
 ]
 
@@ -502,7 +673,7 @@ end
 
 
     </textarea>
-    <script src="https://remarkjs.com/downloads/remark-latest.min.js">
+    <script src="assets/remark.min.js">
     </script>
     <script>
       var slideshow = remark.create({
@@ -511,8 +682,10 @@ end
         highlightLines: true,
         navigation: {
           scroll: false,
-        }
+        },
+        countIncrementalSlides: false
       });
+
     </script>
 
 
