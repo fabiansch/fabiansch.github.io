@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Test a Rails 4 application using RSpec 3</title>
+    <title>Test a Rails 5 application using RSpec 3</title>
     <meta charset="utf-8">
     <style>
       @import url('assets/fonts/fonts.css');
-
-      img[alt='petrinet of cellphone repair process'] { width: 1100px; }
 
       body { font-family: 'Droid Serif'; }
       html * { font-size: 24px; }
@@ -325,12 +323,12 @@ end                                                # spec/models/contact_spec.rb
 ```
 ]
 ---
-## 2. Model Specs - Summery
+## 2. Model Specs - Summary
 
 - [rspec matchers](https://github.com/rspec/rspec-expectations#built-in-matchers): `be_valid`, `eq`, `include`
-- Use active, explicit expectations
-- Test for what you expect to happen, <br>
-  and for what you expect **not** to happen
+- Use active and explicit expectations
+- Test for what you expect to happen and <br>
+  for what you expect **not** to happen
 - Test for edge cases
 - Organize your specs with `describe` and `context`
 
@@ -498,12 +496,12 @@ describe ContactsController do
 
     context 'with params[:letter]' do
       it "populates an array of contacts starting with the letter"
-      it "renders the :index template"
+      it "returns with http 200 status"
     end
 
     context 'without params[:letter]' do
       it "populates an array of all contacts"
-      it "renders the :index template"
+      it "returns with http 200 status"
     end
 
   end
@@ -531,7 +529,7 @@ describe ContactsController do
         expect(response.body).to     include(smith.lastname)
         expect(response.body).not_to include(jones.lastname)
       end
-      it "renders the :index template" do
+      it "returns with http 200 status" do
         get '/contacts', params: { letter: 'S' }
         expect(response).to have_http_status "200"
       end
@@ -544,7 +542,7 @@ describe ContactsController do
         expect(response.body).to include(smith.lastname)
         expect(response.body).to include(jones.lastname)
       end
-      it "renders the :index template" do
+      it "returns with http 200 status" do
         get '/contacts'
         expect(response).to have_http_status "200"
       end
@@ -677,6 +675,7 @@ end                                                # spec/features/users_spec.rb
     </script>
     <script>
       var slideshow = remark.create({
+        ratio: '4:3',
         highlightLanguage: 'ruby',
         highlightStyle: 'monokai-sublime',
         highlightLines: true,
