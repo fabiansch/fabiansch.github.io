@@ -1,0 +1,3 @@
+[submodule "distributed_calculation_using_kubernetes"]
+	path = distributed_calculation_using_kubernetes
+	url = git@github.com:fabiansch/distributed_calculation_using_kubernetes.git
